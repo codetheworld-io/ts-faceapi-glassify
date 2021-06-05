@@ -32,7 +32,15 @@ class GlassifyLib {
         Math.pow(leftEye.y - rightEye.y, 2)
       );
 
-      const editedGlasses = glasses.clone().resize(newWidth + newWidth / 3, Jimp.AUTO);
+      const ab = rightEye.y - leftEye.y;
+      const ac = rightEye.x - leftEye.x;
+
+      const tanACB = ab / ac;
+      const deg = Math.atan(tanACB) * 180 / Math.PI;
+
+      const editedGlasses = glasses.clone()
+        .resize(newWidth + newWidth / 3, Jimp.AUTO)
+        .rotate((-ab * 1 / ab) * deg);
 
       source.composite(
         editedGlasses,
