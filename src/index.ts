@@ -1,14 +1,22 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import GlassifyLib from './glassifyLib';
+import express from 'express';
+import fileUpload, { UploadedFile } from 'express-fileupload';
+import glassifyLib from './glassifyLib';
 
-(async () => {
-  const imageBuffer = fs.readFileSync(path.join(__dirname, '../', 'public/images/demo.jpg'));
+const app = express();
+app.use(fileUpload());
 
-  const output = await GlassifyLib.glassify(imageBuffer);
+app.post('/glassify', async (req, res) => {
+  try {
+    const uploadedImage = req.files?.image as UploadedFile;
 
-  await fs.writeFileSync(
-    path.join(__dirname, '../', `public/images/output_${Date.now()}.jpg`),
-    output,
-  );
-})();
+    res.contentType('image/jpeg');
+    res.send(await glassifyLib.glassify(uploadedImage.data));
+  } catch(error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is listening on: ${PORT}`);
+});
